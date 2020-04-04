@@ -11,12 +11,19 @@ html {
 
         background-color: #eee;
 
-        svg#game-root {
+        .game-container {
             height: 100%;
             width: 100%;
 
-            background-color: #fff;
-            box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+            svg#game-root {
+                background-color: #fff;
+                box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+                transition: opacity 250ms;
+
+                &.-hide {
+                    opacity: 0;
+                }
+            }
         }
     }
 }

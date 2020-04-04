@@ -35,7 +35,9 @@
 </head>
     <body>
         <% if (htmlWebpackPlugin.options.gameMountId) { %>
-        <svg id="<%= htmlWebpackPlugin.options.gameMountId %>"></svg>
+        <div class="game-container">
+            <svg id="<%= htmlWebpackPlugin.options.gameMountId %>" class="-hide"></svg>
+        </div>
         <% } %>
 
         <% for (var chunkname in htmlWebpackPlugin.files.chunks) { %>
