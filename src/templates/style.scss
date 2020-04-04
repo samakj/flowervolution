@@ -1,0 +1,22 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    body {
+        display: block;
+        height: 100vh;
+        margin: 0;
+        padding: 1rem;
+
+        background-color: #eee;
+
+        svg#game-root {
+            height: 100%;
+            width: 100%;
+
+            background-color: #fff;
+            box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+        }
+    }
+}
