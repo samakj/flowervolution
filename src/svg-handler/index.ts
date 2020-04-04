@@ -1,14 +1,25 @@
-import { BadElement } from '@flowervolution/svg-handler/errors';
-import { NumberLimitsType, PositionLimitsType, PositionType } from '@flowervolution/types';
+import { BadElementError, IdGenerationError } from '@flowervolution/svg-handler/errors';
+import {
+    DimensionsType,
+    NumberLimitsType,
+    PositionLimitsType,
+    PositionType,
+} from '@flowervolution/types';
 import { limitNumber, limitPosition } from '@flowervolution/utils/limit-values';
-import { MouseEventHistoryType, TouchEventHistoryType } from '@flowervolution/svg-handler/types';
+import { MouseEventHistoryType, SVGChildElementType, TouchEventHistoryType } from '@flowervolution/svg-handler/types';
 import { addMouseEventHandlers } from '@flowervolution/svg-handler/event-handlers/mouse';
 import { addTouchEventHandlers } from '@flowervolution/svg-handler/event-handlers/touch';
 import { addWheelEventHandlers } from '@flowervolution/svg-handler/event-handlers/wheel';
 import { addResizeHandler } from '@flowervolution/svg-handler/event-handlers/resize';
+import { randomHex } from '@flowervolution/utils/random';
+import { createPathElement } from '@flowervolution/svg-handler/element-creation/path';
+import { createCircleElement } from '@flowervolution/svg-handler/element-creation/circle';
+import { createRectElement } from '@flowervolution/svg-handler/element-creation/rect';
+import { createPolygonElement } from '@flowervolution/svg-handler/element-creation/polygon';
 
 export class SVGHandler {
     element: SVGElement;
+    children: { [id: string]: SVGChildElementType };
 
     scale: number;
     scaleLimits: NumberLimitsType;
@@ -24,6 +35,7 @@ export class SVGHandler {
 
     constructor (element: string | SVGElement) {
         this.element = typeof element === 'string' ? SVGHandler.getSVGElement(element) : element;
+        this.children = {};
 
         this.scale = 1;
         this.scaleLimits = { min: 0.1, max: 10 };
@@ -48,7 +60,7 @@ export class SVGHandler {
         const element: HTMLElement = document.querySelector(`svg#${elementId}`);
 
         if (!(element instanceof SVGElement)) {
-            throw new BadElement('Element id provided does not resolve to an svg element.');
+            throw new BadElementError('Element id provided does not resolve to an svg element.');
         }
 
         return element;
@@ -76,6 +88,73 @@ export class SVGHandler {
                 y: event.clientY - this.boundingClientRect.top,
             };
         }
+    }
+
+    addChild(element: SVGChildElementType, idLength?: number, maxIterationCount?: number): string {
+        let id = randomHex(idLength || 6);
+        let iterationCount = 0;
+
+        while (id in this.children) {
+            if (iterationCount > (maxIterationCount || 1000)) {
+                throw new IdGenerationError('Failed to generate child id within iteration limit')
+            }
+
+            id = randomHex(idLength || 6);
+            iterationCount += 1;
+        }
+
+        this.children[id] = element;
+        this.element.insertAdjacentElement('beforeend', element);
+
+        return id
+    }
+
+    getChild(id: string): SVGChildElementType {
+        return this.children[id]
+    }
+
+    removeChild(id: string): void {
+        delete this.children[id]
+    }
+
+    addPathChild(
+        commands: string[],
+        attrs?: { [attribute: string]: string },
+        idLength?: number,
+        maxIterationCount?: number
+    ): string {
+        return this.addChild(createPathElement(commands, attrs), idLength, maxIterationCount)
+    }
+
+    addCircleChild(
+        center: PositionType,
+        radius: number,
+        attrs?: { [attribute: string]: string },
+        idLength?: number,
+        maxIterationCount?: number
+    ): string {
+        return this.addChild(createCircleElement(center, radius, attrs), idLength, maxIterationCount)
+    }
+
+    addRectChild(
+        position: PositionType,
+        dimensions: DimensionsType,
+        cornerRadii?: DimensionsType,
+        attrs?: { [attribute: string]: string },
+        idLength?: number,
+        maxIterationCount?: number
+    ): string {
+        return this.addChild(createRectElement(position, dimensions, cornerRadii, attrs), idLength, maxIterationCount)
+    }
+
+    addPolygonChild(
+        points: PositionType[],
+        position?: PositionType,
+        attrs?: { [attribute: string]: string },
+        idLength?: number,
+        maxIterationCount?: number
+    ): string {
+        return this.addChild(createPolygonElement(points, position, attrs), idLength, maxIterationCount)
     }
 
     panBy(delta: PositionType): void {

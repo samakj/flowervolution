@@ -12,3 +12,5 @@ export interface TouchEventHistoryType {
     touchMove?: TouchEvent;
     touchCancel?: TouchEvent;
 }
+
+export type SVGChildElementType = SVGPathElement | SVGCircleElement | SVGRectElement | SVGPolygonElement
