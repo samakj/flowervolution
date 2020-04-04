@@ -23,9 +23,11 @@ export class SVGHandler {
 
     scale: number;
     scaleLimits: NumberLimitsType;
+    scaleAnimationId: number;
 
     translation: PositionType;
     translationLimits: PositionLimitsType;
+    translationAnimationId: number;
 
     boundingClientRect: DOMRect | ClientRect;
 
@@ -41,7 +43,7 @@ export class SVGHandler {
         this.scaleLimits = { min: 0.1, max: 10 };
 
         this.translation = { x: 0, y: 0};
-        this.translationLimits = { x: {min: 0, max: 10}, y: {min: 0, max: 10}};
+        this.translationLimits = { x: {min: 0, max: 400}, y: {min: 0, max: 400}};
 
         this.mousePosition = { x: 0, y: 0};
         this.mouseEventHistory = {};
@@ -54,6 +56,8 @@ export class SVGHandler {
         addTouchEventHandlers(this);
         addWheelEventHandlers(this);
         addResizeHandler(this);
+
+        this.animatedPanTo = this.animatedPanTo.bind(this)
     }
 
     static getSVGElement (elementId: string): SVGElement {
@@ -171,8 +175,62 @@ export class SVGHandler {
         this.updateSvgProperties();
     }
 
+    animatedPanBy(delta: PositionType, duration: number = 300): void {
+        this.animatedPanTo(
+            {
+                x: this.translation.x + delta.x,
+                y: this.translation.y + delta.y,
+            },
+            duration,
+        )
+    }
+
+    animatedPanTo(target: PositionType, duration: number = 300): void {
+        const id =  + new Date();
+        this.translationAnimationId = id;
+
+        requestAnimationFrame(
+            () => this.animatedPanToLooper(
+                id,
+                Object.assign(this.translation),
+                limitPosition(
+                    target,
+                    this.translationLimits
+                ),
+                id,
+                duration
+            )
+        )
+    }
+
+    animatedPanToLooper(
+        id: number,
+        startPosition: PositionType,
+        targetPosition: PositionType,
+        startTime: number,
+        duration: number,
+    ): void {
+        if (this.translationAnimationId !== id) return;
+
+        const timeRatio = (+ new Date() - startTime) / duration;
+
+        if (timeRatio > 1) {
+            this.panTo(targetPosition);
+            return;
+        }
+
+        this.panTo({
+            x: startPosition.x + timeRatio * (targetPosition.x - startPosition.x),
+            y: startPosition.y + timeRatio * (targetPosition.y - startPosition.y),
+        });
+
+        requestAnimationFrame(
+            () => this.animatedPanToLooper(id, startPosition, targetPosition, startTime, duration)
+        );
+    }
+
     scaleBy(delta: number, center: PositionType): void {
-        const newScale: number = limitNumber(this.scale + delta, this.scaleLimits);
+        const newScale: number = limitNumber(this.scale * delta, this.scaleLimits);
 
         if (newScale !== this.scale) {
             this.translation = {
@@ -187,5 +245,49 @@ export class SVGHandler {
     scaleTo(scale: number, center: PositionType): void {
         const scaledDelta = scale / this.scale;
         return this.scaleBy(scaledDelta, center);
+    }
+
+    animatedScaleBy(delta: number, center: PositionType, duration: number = 300): void {
+        this.animatedScaleTo(this.scale * delta, center, duration)
+    }
+
+    animatedScaleTo(target: number, center: PositionType, duration: number = 300): void {
+        const id =  + new Date();
+        this.scaleAnimationId = id;
+
+        requestAnimationFrame(
+            () => this.animatedScaleToLooper(
+                id,
+                this.scale,
+                limitNumber(target, this.scaleLimits),
+                center,
+                id,
+                duration,
+            )
+        )
+    }
+
+    animatedScaleToLooper(
+        id: number,
+        startScale: number,
+        targetScale: number,
+        center: PositionType,
+        startTime: number,
+        duration: number,
+    ): void {
+        if (this.scaleAnimationId !== id) return;
+
+        const timeRatio = (+ new Date() - startTime) / duration;
+
+        if (timeRatio > 1) {
+            this.scaleTo(targetScale, center);
+            return;
+        }
+
+        this.scaleTo(startScale + timeRatio * (targetScale - startScale), center);
+
+        requestAnimationFrame(
+            () => this.animatedScaleToLooper(id, startScale, targetScale, center, startTime, duration)
+        );
     }
 }

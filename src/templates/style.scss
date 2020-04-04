@@ -28,6 +28,11 @@ html {
             .grid-cell {
                 stroke: #000;
                 fill: #fff;
+                transition: fill 300ms;
+
+                &:hover {
+                    fill: #eee;
+                }
             }
         }
     }
