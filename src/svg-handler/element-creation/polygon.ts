@@ -19,12 +19,17 @@ export const createPolygonElement = (
         'points',
         points.reduce(
             (acc: string, point: PositionType): string => {
-                return `${acc}${acc.length ? ' ' : ''}${point.x + cleanPosition.x}${point.y + cleanPosition.y}`
+                return `${acc}` +
+                    `${acc.length ? ' ' : ''}` +
+                    `${point.x + cleanPosition.x}` +
+                    `${point.y + cleanPosition.y}`;
             },
             '',
         ),
     );
-    Object.entries(attrs || {}).forEach(([attr, value]) => element.setAttribute(attr, value));
+    Object.entries(attrs || {}).forEach(
+        ([attr, value]: [string, string]) => element.setAttribute(attr, value),
+    );
 
-    return element
+    return element;
 };

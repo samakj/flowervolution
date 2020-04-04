@@ -19,7 +19,9 @@ export const createRectElement = (
     element.setAttribute('width', dimensions.y.toString());
     element.setAttribute('rx', cleanCornerRadii.x.toString());
     element.setAttribute('ry', cleanCornerRadii.y.toString());
-    Object.entries(attrs || {}).forEach(([attr, value]) => element.setAttribute(attr, value));
+    Object.entries(attrs || {}).forEach(
+        ([attr, value]: [string, string]) => element.setAttribute(attr, value),
+    );
 
     return element;
 };

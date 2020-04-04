@@ -1,27 +1,31 @@
 import { SVGHandler } from '@flowervolution/svg-handler';
+import { TouchEventHandlerType } from '@flowervolution/svg-handler/event-handlers/types';
 
 export const addTouchEventHandlers = (svgHandler: SVGHandler): void => {
     svgHandler.element.parentElement.addEventListener('touchstart', touchStartHandler(svgHandler));
     svgHandler.element.parentElement.addEventListener('touchend', touchEndHandler(svgHandler));
     svgHandler.element.parentElement.addEventListener('touchmove', touchMoveHandler(svgHandler));
-    svgHandler.element.parentElement.addEventListener('touchcancel', touchCancelHandler(svgHandler));
+    svgHandler.element.parentElement.addEventListener(
+        'touchcancel',
+        touchCancelHandler(svgHandler),
+    );
 };
 
-const touchStartHandler = (svgHandler: SVGHandler) => (event: TouchEvent): void => {
+const touchStartHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (event: TouchEvent): void => {
     svgHandler.touchEventHistory.touchStart = event;
     svgHandler.touchEventHistory.touchEnd = null;
     svgHandler.touchEventHistory.touchMove = null;
     svgHandler.touchEventHistory.touchCancel = null;
 };
 
-const touchEndHandler = (svgHandler: SVGHandler) => (event: TouchEvent): void => {
+const touchEndHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (event: TouchEvent): void => {
     svgHandler.touchEventHistory.touchStart = null;
     svgHandler.touchEventHistory.touchEnd = event;
     svgHandler.touchEventHistory.touchMove = null;
     svgHandler.touchEventHistory.touchCancel = null;
 };
 
-const touchMoveHandler = (svgHandler: SVGHandler) => (event: TouchEvent): void => {
+const touchMoveHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (event: TouchEvent): void => {
     svgHandler.updateMousePosition(event.touches[0]);
 
     if (!!svgHandler.touchEventHistory.touchStart) {
@@ -55,7 +59,7 @@ const touchMoveHandler = (svgHandler: SVGHandler) => (event: TouchEvent): void =
     svgHandler.touchEventHistory.touchMove = event;
 };
 
-const touchCancelHandler = (svgHandler: SVGHandler) => (event: TouchEvent): void => {
+const touchCancelHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (event: TouchEvent): void => {
     svgHandler.updateMousePosition(event.touches[0]);
     svgHandler.touchEventHistory.touchStart = null;
     svgHandler.touchEventHistory.touchEnd = null;
