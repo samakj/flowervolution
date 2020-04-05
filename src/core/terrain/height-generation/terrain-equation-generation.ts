@@ -1,6 +1,8 @@
 import { Equation } from '@flowervolution/core/equation';
 import { Term } from '@flowervolution/core/equation/term';
 import { SeededRandomNumberGenerator } from '@flowervolution/core/seeded-random-number-generator';
+import { PositionType } from '@flowervolution/types';
+import { Grid2d } from '@flowervolution/core/grid-2d';
 
 /**
  * Rounds a number to a specified number of decimal places.
