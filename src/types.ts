@@ -13,7 +13,7 @@ export interface PositionLimitsType {
     y?: NumberLimitsType;
 }
 
-export interface DimensionType {
+export interface DimensionsType {
     x: number;
     y: number;
 }
