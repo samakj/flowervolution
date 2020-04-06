@@ -6,7 +6,7 @@ export const appendHeight2dGrid = (
     equation: Equation,
     grid: Grid2d<{[key: string]: any}>,
     initialOffset?: PositionType,
-): Grid2d => {
+): Grid2d<{[key: string]: any}> => {
     const offset: PositionType = {
         x: initialOffset && initialOffset.x || 0,
         y: initialOffset && initialOffset.y || 0,
@@ -20,11 +20,11 @@ export const appendHeight2dGrid = (
             {
                 x: cell.position.x + offset.x,
                 y: cell.position.y + offset.y,
-            }
+            },
         );
 
         if (typeof cellHeight !== 'number') {
-            throw EvalError('Something went wrong in resolving the height equation.')
+            throw EvalError('Something went wrong in resolving the height equation.');
         }
 
         if (!maxCellHeight || cellHeight > maxCellHeight) maxCellHeight = cellHeight;
@@ -35,9 +35,8 @@ export const appendHeight2dGrid = (
 
     // Normalise cell heights between 0 and 1.
     for (const cell of grid.cells) {
-        cell.value.height = (cell.value.height - minCellHeight) / (maxCellHeight - minCellHeight)
+        cell.value.height = (cell.value.height - minCellHeight) / (maxCellHeight - minCellHeight);
     }
 
-
-    return grid
+    return grid;
 };
