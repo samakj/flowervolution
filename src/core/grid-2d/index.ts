@@ -163,4 +163,16 @@ export class Grid2d<CellValueType> {
 
         return new Column(x, cells);
     }
+
+    getChunk(size: DimensionsType, offset: PositionType): Cell<CellValueType>[] {
+        const cells: Cell<CellValueType>[] = [];
+
+        for (let y: number = offset.y; y < offset.y + size.y; y += 1) {
+            for (let x: number = offset.x; x < offset.x + size.x; x += 1) {
+                cells.push(this.getCell({ x, y }));
+            }
+        }
+
+        return cells;
+    }
 }
