@@ -48,11 +48,12 @@ const mouseMoveHandler = (svgHandler: SVGHandler): MouseEventHandlerType => (eve
         const prevMouseEvent: MouseEvent =
             svgHandler.mouseEventHistory.mouseMove || svgHandler.mouseEventHistory.mouseDown;
 
-        svgHandler.panBy({
-            x: event.clientX - prevMouseEvent.clientX,
-            y: event.clientY - prevMouseEvent.clientY,
-        });
+        if (event.timeStamp - prevMouseEvent.timeStamp > 30) {
+            svgHandler.panBy({
+                x: event.clientX - prevMouseEvent.clientX,
+                y: event.clientY - prevMouseEvent.clientY,
+            });
+            svgHandler.mouseEventHistory.mouseMove = event;
+        }
     }
-
-    svgHandler.mouseEventHistory.mouseMove = event;
 };

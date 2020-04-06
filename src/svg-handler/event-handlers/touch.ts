@@ -31,32 +31,35 @@ const touchMoveHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (eve
     if (!!svgHandler.touchEventHistory.touchStart) {
         const lastTouchEvent: TouchEvent =
             svgHandler.touchEventHistory.touchMove || svgHandler.touchEventHistory.touchStart;
-        if (event.touches[0].identifier === lastTouchEvent.touches[0].identifier) {
-            svgHandler.panBy({
-                x: event.touches[0].clientX - lastTouchEvent.touches[0].clientX,
-                y: event.touches[0].clientY - lastTouchEvent.touches[0].clientY,
-            });
-        }
-        if (
-            event.touches.length > 1 &&
-            lastTouchEvent.touches.length > 1 &&
-            event.touches[0].identifier === lastTouchEvent.touches[0].identifier &&
-            event.touches[1].identifier === lastTouchEvent.touches[1].identifier
-        ) {
-            svgHandler.scaleBy(
-                Math.hypot(
-                    event.touches[1].clientX - event.touches[0].clientX,
-                    event.touches[1].clientY - event.touches[0].clientY,
-                ),
-                {
-                    x: (event.touches[1].clientX + event.touches[0].clientX) / 2,
-                    y: (event.touches[1].clientY + event.touches[0].clientY) / 2,
-                },
-            );
+
+        if (event.timeStamp - lastTouchEvent.timeStamp > 30) {
+            if (event.touches[0].identifier === lastTouchEvent.touches[0].identifier) {
+                svgHandler.panBy({
+                    x: event.touches[0].clientX - lastTouchEvent.touches[0].clientX,
+                    y: event.touches[0].clientY - lastTouchEvent.touches[0].clientY,
+                });
+            }
+            if (
+                event.touches.length > 1 &&
+                lastTouchEvent.touches.length > 1 &&
+                event.touches[0].identifier === lastTouchEvent.touches[0].identifier &&
+                event.touches[1].identifier === lastTouchEvent.touches[1].identifier
+            ) {
+                svgHandler.scaleBy(
+                    Math.hypot(
+                        event.touches[1].clientX - event.touches[0].clientX,
+                        event.touches[1].clientY - event.touches[0].clientY,
+                    ),
+                    {
+                        x: (event.touches[1].clientX + event.touches[0].clientX) / 2,
+                        y: (event.touches[1].clientY + event.touches[0].clientY) / 2,
+                    },
+                );
+            }
+
+            svgHandler.touchEventHistory.touchMove = event;
         }
     }
-
-    svgHandler.touchEventHistory.touchMove = event;
 };
 
 const touchCancelHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (event: TouchEvent): void => {
