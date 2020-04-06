@@ -3,6 +3,8 @@
 }
 
 html {
+    overscroll-behavior: none;
+
     body {
         display: block;
         height: 100vh;
@@ -15,9 +17,10 @@ html {
             height: 100%;
             width: 100%;
 
+            background-color: #000;
+            box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+
             svg#game-root {
-                background-color: #fff;
-                box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
                 transition: opacity 250ms;
 
                 &.-hide {
@@ -26,13 +29,10 @@ html {
             }
 
             .grid-cell {
-                stroke: #000;
+                position: relative;
                 fill: #fff;
-                transition: fill 300ms;
-
-                &:hover {
-                    fill: #eee;
-                }
+                fill-opacity: 1;
+                z-index: 1;
             }
         }
     }

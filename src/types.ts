@@ -17,3 +17,16 @@ export interface DimensionsType {
     x: number;
     y: number;
 }
+
+export interface KeyedObject {
+    [key: string]: any;
+    [key: number]: any;
+}
+
+export interface StringKeyedObject {
+    [key: string]: any;
+}
+
+export interface NumberKeyedObject {
+    [key: number]: any;
+}
