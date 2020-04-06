@@ -45,8 +45,8 @@ const touchMoveHandler = (svgHandler: SVGHandler): TouchEventHandlerType => (eve
                 event.touches[0].identifier === lastTouchEvent.touches[0].identifier &&
                 event.touches[1].identifier === lastTouchEvent.touches[1].identifier
             ) {
-                svgHandler.scaleBy(
-                    Math.hypot(
+                svgHandler.scaleTo(
+                    svgHandler.scale + Math.hypot(
                         event.touches[1].clientX - event.touches[0].clientX,
                         event.touches[1].clientY - event.touches[0].clientY,
                     ),

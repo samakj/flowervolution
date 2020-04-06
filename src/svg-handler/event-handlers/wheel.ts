@@ -6,5 +6,5 @@ export const addWheelEventHandlers = (svgHandler: SVGHandler): void => {
 };
 
 const wheelHandler = (svgHandler: SVGHandler): WheelEventHandlerType => (event: WheelEvent): void => {
-    svgHandler.scaleBy(event.deltaY / 100, svgHandler.mousePosition);
+    svgHandler.scaleTo(svgHandler.scale + event.deltaY / 100, svgHandler.mousePosition);
 };
