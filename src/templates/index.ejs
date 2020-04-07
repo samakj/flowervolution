@@ -34,11 +34,14 @@
     <% } %>
 </head>
     <body>
-        <% if (htmlWebpackPlugin.options.gameMountId) { %>
-        <div class="game-container">
-            <svg id="<%= htmlWebpackPlugin.options.gameMountId %>" class="-hide"></svg>
+        <div class="game-grid">
+            <div class="game-controls">
+
+            </div>
+            <div class="game-container">
+                <svg id="<%= htmlWebpackPlugin.options.gameMountId %>" class="-hide"></svg>
+            </div>
         </div>
-        <% } %>
 
         <% for (var chunkname in htmlWebpackPlugin.files.chunks) { %>
         <script src="<%= htmlWebpackPlugin.files.chunks[chunkname].entry %>"></script>
