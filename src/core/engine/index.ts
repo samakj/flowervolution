@@ -153,6 +153,8 @@ export class GameEngine {
         element.classList.remove('-water', '-mud', '-rock', '-snow', '-height', '-saturation', '-salinity');
     }
 
+    //// GENERATION AND CREATION
+
     createTerrainClasses(): Promise<void> {
         return new Promise<void>((resolve: Function): void => {
             let styles: string = `#${this.options.dom.elementId} .grid-cell` +
@@ -220,26 +222,6 @@ export class GameEngine {
         });
     }
 
-    addCellDebug(): Promise<void> {
-        return new Promise<void>(
-            (resolve: Function): void => {
-                this.grid.cells.forEach(
-                    (cell: Cell<GameTile>): void => {
-                        this.svgHandler.getChild(cell.value.elementId).addEventListener(
-                            'click',
-                            (): void => {
-                                document.querySelector('.game-controls').innerHTML = `
-                                <pre>${JSON.stringify(cell.value, null, 4)}</pre>
-                                `;
-                            },
-                        );
-                    },
-                );
-                resolve();
-            },
-        );
-    }
-
     interpretTerrain(): Promise<void> {
         return new Promise<void>(
             (resolve: Function): void => {
@@ -266,6 +248,28 @@ export class GameEngine {
                                 `${cell.value.environment.terrain.type}`,
                             );
                         }
+                    },
+                );
+                resolve();
+            },
+        );
+    }
+
+    //// DEBUG
+
+    addCellDebug(): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                this.grid.cells.forEach(
+                    (cell: Cell<GameTile>): void => {
+                        this.svgHandler.getChild(cell.value.elementId).addEventListener(
+                            'click',
+                            (): void => {
+                                document.querySelector('.game-controls').innerHTML = `
+                                <pre>${JSON.stringify(cell.value, null, 4)}</pre>
+                                `;
+                            },
+                        );
                     },
                 );
                 resolve();
