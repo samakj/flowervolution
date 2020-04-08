@@ -35,7 +35,7 @@ export class GameEngine {
         );
 
         Promise.all([this.drawGrid(), this.createTerrainClasses(), this.generateHeightMap()])
-            .then(() => Promise.all([this.drawRawHeightMap(), this.interpretHeightMap()]))
+            .then(() => Promise.all([this.drawRawHeightMap(), this.interpretHeightMap(), this.addCellDebug()]))
             .then(() => Promise.all([this.drawTerrainMap()]))
             .catch(console.error);
     }
@@ -202,5 +202,25 @@ export class GameEngine {
                 options.fillOpacityRange.min
             ).toString();
         });
+    }
+
+    addCellDebug(): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                this.grid.cells.forEach(
+                    (cell: Cell<GameTile>): void => {
+                        this.svgHandler.getChild(cell.value.elementId).addEventListener(
+                            'click',
+                            (): void => {
+                                document.querySelector('.game-controls').innerHTML = `
+                                <pre>${JSON.stringify(cell.value, null, 4)}</pre>
+                                `;
+                            },
+                        );
+                    },
+                );
+                resolve();
+            },
+        );
     }
 }
