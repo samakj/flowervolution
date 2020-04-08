@@ -10,7 +10,8 @@ export class GameTile {
 
         };
         water?: {
-
+            saturation?: number;
+            salinity?: number;
         };
     };
 

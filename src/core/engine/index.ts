@@ -10,6 +10,7 @@ import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 import { sleep } from '@flowervolution/utils/sleep';
 import { PositionType } from '@flowervolution/types';
 import { Equation } from '@flowervolution/core/models/equation';
+import { roundToDp } from '@flowervolution/utils/round';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -36,7 +37,7 @@ export class GameEngine {
 
         Promise.all([this.drawGrid(), this.createTerrainClasses(), this.generateHeightMap()])
             .then(() => Promise.all([this.drawRawHeightMap(), this.interpretHeightMap(), this.addCellDebug()]))
-            .then(() => Promise.all([this.drawTerrainMap()]))
+            .then(() => Promise.all([this.drawTerrainMap(), this.interpretTerrain()]))
             .catch(console.error);
     }
 
@@ -177,9 +178,11 @@ export class GameEngine {
                         cell.value.environment.height <= options.heightRange.max
                     ) {
                         cell.value.environment.terrain.type = name;
-                        cell.value.environment.terrain.height =
+                        cell.value.environment.terrain.height = roundToDp(
                             (cell.value.environment.height - options.heightRange.min) /
-                            (options.heightRange.max - options.heightRange.min);
+                            (options.heightRange.max - options.heightRange.min),
+                            3,
+                        );
                         break;
                     }
                 }
@@ -217,6 +220,39 @@ export class GameEngine {
                                 `;
                             },
                         );
+                    },
+                );
+                resolve();
+            },
+        );
+    }
+
+    interpretTerrain(): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                this.grid.cells.forEach(
+                    (cell: Cell<GameTile>): void => {
+                        if (cell.value.environment.terrain.type === 'water') {
+                            cell.value.environment.water.saturation = 1;
+                            cell.value.environment.water.salinity = 1;
+                        } else if (cell.value.environment.terrain.type === 'mud') {
+                            cell.value.environment.water.saturation = 1 - cell.value.environment.terrain.height;
+                            cell.value.environment.water.salinity = roundToDp(
+                                (1 - cell.value.environment.terrain.height) ** 2,
+                                3,
+                            );
+                        } else if (cell.value.environment.terrain.type === 'rock') {
+                            cell.value.environment.water.saturation = 0;
+                            cell.value.environment.water.salinity = 0;
+                        } else if (cell.value.environment.terrain.type === 'snow') {
+                            cell.value.environment.water.saturation = 1;
+                            cell.value.environment.water.salinity = 0;
+                        } else {
+                            throw Error(
+                                `Terrain type not handled in terrain interpretation: ` +
+                                `${cell.value.environment.terrain.type}`,
+                            );
+                        }
                     },
                 );
                 resolve();
