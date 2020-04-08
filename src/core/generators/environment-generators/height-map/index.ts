@@ -78,6 +78,7 @@ export const applyHeightMapEquationToGrid2d = (
     equation: Equation,
     grid: Grid2d<GameTile>,
     initialOffset?: PositionType,
+    dps?: number,
 ): Grid2d<GameTile> => {
     const offset: PositionType = {
         x: initialOffset && initialOffset.x || 0,
@@ -107,8 +108,10 @@ export const applyHeightMapEquationToGrid2d = (
 
     // Normalise cell heights between 0 and 1.
     for (const cell of grid.cells) {
-        cell.value.environment.height = (cell.value.environment.height - minCellHeight) /
-            (maxCellHeight - minCellHeight);
+        cell.value.environment.height = roundToDp(
+            (cell.value.environment.height - minCellHeight) / (maxCellHeight - minCellHeight),
+            dps || 3,
+        );
     }
 
     return grid;
