@@ -11,6 +11,8 @@ import { sleep } from '@flowervolution/utils/sleep';
 import { PositionType } from '@flowervolution/types';
 import { Equation } from '@flowervolution/core/models/equation';
 import { roundToDp } from '@flowervolution/utils/round';
+import { deepGet } from '@flowervolution/utils/deep-get';
+import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -36,78 +38,18 @@ export class GameEngine {
         );
 
         Promise.all([this.drawGrid(), this.createTerrainClasses(), this.generateHeightMap()])
-            .then(() => Promise.all([this.drawRawHeightMap(), this.interpretHeightMap(), this.addCellDebug()]))
+            .then(
+                () => Promise.all([
+                    this.draw1dProperty(['environment', 'height']),
+                    this.interpretHeightMap(),
+                    this.addCellDebug(),
+                ]),
+            )
             .then(() => Promise.all([this.drawTerrainMap(), this.interpretTerrain()]))
             .catch(console.error);
     }
 
-    drawGrid(): Promise<void> {
-        return new Promise<void>((resolve: Function): void => {
-            if (!this.options.dom.cellPxSize) {
-                this.options.dom.cellPxSize = Math.floor(
-                    Math.min(
-                        this.svgHandler.element.clientHeight / this.options.grid.size,
-                        this.svgHandler.element.clientWidth / this.options.grid.size,
-                    ) -
-                        2 * this.options.dom.cellPxSpacing,
-                );
-            }
-
-            const outerCellPxSize: number =
-                this.options.dom.cellPxSize + 2 * this.options.dom.cellPxSpacing;
-
-            for (const cell of this.grid.cells) {
-                cell.value.elementId = this.svgHandler.addRectChild(
-                    { x: outerCellPxSize * cell.position.x, y: outerCellPxSize * cell.position.y },
-                    { x: this.options.dom.cellPxSize, y: this.options.dom.cellPxSize },
-                    null,
-                    { class: 'grid-cell -empty' },
-                );
-            }
-
-            resolve(sleep(this.options.animation.time + this.options.animation.gap));
-        });
-    }
-
-    createTerrainClasses(): Promise<void> {
-        return new Promise<void>((resolve: Function): void => {
-            let styles: string = `#${this.options.dom.elementId} .grid-cell` +
-                `{transition: ${this.options.animation.time}ms}`;
-            Object.entries(this.options.terrain.types).forEach(
-                ([name, options]: [string, TerrainType]) => {
-                    styles += `#${this.options.dom.elementId} .grid-cell.-${name}{fill: ${options.fill}}`;
-                },
-            );
-            const el: HTMLElement = document.createElement('style');
-            el.innerText = styles;
-            document.head.insertAdjacentElement('beforeend', el);
-            resolve();
-        });
-    }
-
-    generateHeightMap(): Promise<void> {
-        return new Promise<void>((resolve: Function): void => {
-            if (!this.options.terrain.spread) {
-                this.options.terrain.spread = this.options.grid.size * 4;
-            }
-
-            const terrainEquation: Equation = generate2dHeightMapEquation(
-                this.seededRandomNumberGenerator,
-                this.options.terrain.equationTerms,
-                this.options.terrain.spread,
-            );
-
-            if (!this.options.terrain.offset) {
-                this.options.terrain.offset = {
-                    x: this.seededRandomNumberGenerator.randomIntegerBetween(256, 1024),
-                    y: this.seededRandomNumberGenerator.randomIntegerBetween(256, 1024),
-                };
-            }
-
-            applyHeightMapEquationToGrid2d(terrainEquation, this.grid, this.options.terrain.offset);
-            resolve();
-        });
-    }
+    //// ANIMATION AND DRAWING
 
     chunkAnimationIteration(
         x: number,
@@ -156,14 +98,98 @@ export class GameEngine {
         });
     }
 
-    drawRawHeightMap(): Promise<void> {
+    drawGrid(): Promise<void> {
+        return new Promise<void>((resolve: Function): void => {
+            if (!this.options.dom.cellPxSize) {
+                this.options.dom.cellPxSize = Math.floor(
+                    Math.min(
+                        this.svgHandler.element.clientHeight / this.options.grid.size,
+                        this.svgHandler.element.clientWidth / this.options.grid.size,
+                    ) -
+                        2 * this.options.dom.cellPxSpacing,
+                );
+            }
+
+            const outerCellPxSize: number =
+                this.options.dom.cellPxSize + 2 * this.options.dom.cellPxSpacing;
+
+            for (const cell of this.grid.cells) {
+                cell.value.elementId = this.svgHandler.addRectChild(
+                    { x: outerCellPxSize * cell.position.x, y: outerCellPxSize * cell.position.y },
+                    { x: this.options.dom.cellPxSize, y: this.options.dom.cellPxSize },
+                    null,
+                    { class: 'grid-cell' },
+                );
+            }
+
+            resolve(sleep(this.options.animation.time + this.options.animation.gap));
+        });
+    }
+
+    draw1dProperty(propertyPath: string[]): Promise<void> {
         return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            this.svgHandler.children[cell.value.elementId].style.fillOpacity = (
-                (this.options.terrain.types.empty.fillOpacityRange.max -
-                    this.options.terrain.types.empty.fillOpacityRange.min) *
-                    cell.value.environment.height +
-                this.options.terrain.types.empty.fillOpacityRange.min
+            const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
+            this.removeStylingClasses(element);
+            element.style.fillOpacity = deepGet(cell.value, propertyPath).toString();
+            element.classList.add(`-${propertyPath[propertyPath.length - 1]}`);
+        });
+    }
+
+    drawTerrainMap(): Promise<void> {
+        return this.chunkAnimation((cell: Cell<GameTile>): void => {
+            const options: TerrainType = this.options.terrain.types[cell.value.environment.terrain.type];
+            const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
+            this.removeStylingClasses(element);
+            element.classList.add(`-${cell.value.environment.terrain.type}`);
+            element.style.fillOpacity = (
+                (options.fillOpacityRange.max - options.fillOpacityRange.min) *
+                    cell.value.environment.terrain.height +
+                options.fillOpacityRange.min
             ).toString();
+        });
+    }
+
+    removeStylingClasses(element: SVGChildElementType): void {
+        element.classList.remove('-water', '-mud', '-rock', '-snow', '-height', '-saturation', '-salinity');
+    }
+
+    createTerrainClasses(): Promise<void> {
+        return new Promise<void>((resolve: Function): void => {
+            let styles: string = `#${this.options.dom.elementId} .grid-cell` +
+                `{transition: ${this.options.animation.time}ms}`;
+            Object.entries(this.options.terrain.types).forEach(
+                ([name, options]: [string, TerrainType]) => {
+                    styles += `#${this.options.dom.elementId} .grid-cell.-${name}{fill: ${options.fill}}`;
+                },
+            );
+            const el: HTMLElement = document.createElement('style');
+            el.innerText = styles;
+            document.head.insertAdjacentElement('beforeend', el);
+            resolve();
+        });
+    }
+
+    generateHeightMap(): Promise<void> {
+        return new Promise<void>((resolve: Function): void => {
+            if (!this.options.terrain.spread) {
+                this.options.terrain.spread = this.options.grid.size * 4;
+            }
+
+            const terrainEquation: Equation = generate2dHeightMapEquation(
+                this.seededRandomNumberGenerator,
+                this.options.terrain.equationTerms,
+                this.options.terrain.spread,
+            );
+
+            if (!this.options.terrain.offset) {
+                this.options.terrain.offset = {
+                    x: this.seededRandomNumberGenerator.randomIntegerBetween(256, 1024),
+                    y: this.seededRandomNumberGenerator.randomIntegerBetween(256, 1024),
+                };
+            }
+
+            applyHeightMapEquationToGrid2d(terrainEquation, this.grid, this.options.terrain.offset);
+            resolve();
         });
     }
 
@@ -191,19 +217,6 @@ export class GameEngine {
                 }
             });
             resolve();
-        });
-    }
-
-    drawTerrainMap(): Promise<void> {
-        return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            const options: TerrainType = this.options.terrain.types[cell.value.environment.terrain.type];
-            this.svgHandler.children[cell.value.elementId].classList.remove('-empty');
-            this.svgHandler.children[cell.value.elementId].classList.add(`-${cell.value.environment.terrain.type}`);
-            this.svgHandler.children[cell.value.elementId].style.fillOpacity = (
-                (options.fillOpacityRange.max - options.fillOpacityRange.min) *
-                    cell.value.environment.terrain.height +
-                options.fillOpacityRange.min
-            ).toString();
         });
     }
 

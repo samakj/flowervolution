@@ -48,6 +48,14 @@ html {
                     fill: #fff;
                     fill-opacity: 1;
                     z-index: 1;
+
+                    &.-salinity {
+                        fill: #0f8
+                    }
+
+                    &.-saturation {
+                        fill: #00f
+                    }
                 }
             }
         }
