@@ -1,12 +1,20 @@
 export class GameTile {
     elementId?: string;
-    height?: number;
-    terrain?: string;
-    terrainSpecificHeight?: number;
+    environment?: {
+        height?: number;
+        terrain?: {
+            type?: string;
+            height?: number;
+        };
+        light?: {
 
-    constructor(elementId?: string, height?: number, terrain?: string) {
-        this.elementId = elementId;
-        this.height = height;
-        this.terrain = terrain;
+        };
+        water?: {
+
+        };
+    };
+
+    constructor () {
+        this.environment = { terrain: {}, light: {}, water: {} };
     }
 }

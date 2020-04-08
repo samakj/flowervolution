@@ -4,6 +4,7 @@ import { SeededRandomNumberGenerator } from '@flowervolution/core/generators/see
 import { roundToDp } from '@flowervolution/utils/round';
 import { Grid2d } from '@flowervolution/core/data-structures/grid-2d';
 import { PositionType } from '@flowervolution/types';
+import { GameTile } from '@flowervolution/core/models/game-tile';
 
 const generateTerm = (
     srng: SeededRandomNumberGenerator,
@@ -75,9 +76,9 @@ export const generate2dHeightMapEquation = (
 
 export const applyHeightMapEquationToGrid2d = (
     equation: Equation,
-    grid: Grid2d<{[key: string]: any}>,
+    grid: Grid2d<GameTile>,
     initialOffset?: PositionType,
-): Grid2d<{[key: string]: any}> => {
+): Grid2d<GameTile> => {
     const offset: PositionType = {
         x: initialOffset && initialOffset.x || 0,
         y: initialOffset && initialOffset.y || 0,
@@ -101,12 +102,13 @@ export const applyHeightMapEquationToGrid2d = (
         if (!maxCellHeight || cellHeight > maxCellHeight) maxCellHeight = cellHeight;
         if (!minCellHeight || cellHeight < minCellHeight) minCellHeight = cellHeight;
 
-        cell.value.height = cellHeight;
+        cell.value.environment.height = cellHeight;
     }
 
     // Normalise cell heights between 0 and 1.
     for (const cell of grid.cells) {
-        cell.value.height = (cell.value.height - minCellHeight) / (maxCellHeight - minCellHeight);
+        cell.value.environment.height = (cell.value.environment.height - minCellHeight) /
+            (maxCellHeight - minCellHeight);
     }
 
     return grid;

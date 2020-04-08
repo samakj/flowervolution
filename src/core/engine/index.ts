@@ -160,7 +160,7 @@ export class GameEngine {
             this.svgHandler.children[cell.value.elementId].style.fillOpacity = (
                 (this.options.terrain.types.empty.fillOpacityRange.max -
                     this.options.terrain.types.empty.fillOpacityRange.min) *
-                    cell.value.height +
+                    cell.value.environment.height +
                 this.options.terrain.types.empty.fillOpacityRange.min
             ).toString();
         });
@@ -173,18 +173,18 @@ export class GameEngine {
                     const options: TerrainType = this.options.terrain.types[name];
 
                     if (
-                        cell.value.height >= options.heightRange.min &&
-                        cell.value.height <= options.heightRange.max
+                        cell.value.environment.height >= options.heightRange.min &&
+                        cell.value.environment.height <= options.heightRange.max
                     ) {
-                        cell.value.terrain = name;
-                        cell.value.terrainSpecificHeight =
-                            (cell.value.height - options.heightRange.min) /
+                        cell.value.environment.terrain.type = name;
+                        cell.value.environment.terrain.height =
+                            (cell.value.environment.height - options.heightRange.min) /
                             (options.heightRange.max - options.heightRange.min);
                         break;
                     }
                 }
-                if (!cell.value.terrain) {
-                    throw Error(`No terrain found for height: ${cell.value.height}`);
+                if (!cell.value.environment.terrain.type) {
+                    throw Error(`No terrain found for height: ${cell.value.environment.height}`);
                 }
             });
             resolve();
@@ -193,12 +193,12 @@ export class GameEngine {
 
     drawTerrainMap(): Promise<void> {
         return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            const options: TerrainType = this.options.terrain.types[cell.value.terrain];
+            const options: TerrainType = this.options.terrain.types[cell.value.environment.terrain.type];
             this.svgHandler.children[cell.value.elementId].classList.remove('-empty');
-            this.svgHandler.children[cell.value.elementId].classList.add(`-${cell.value.terrain}`);
+            this.svgHandler.children[cell.value.elementId].classList.add(`-${cell.value.environment.terrain.type}`);
             this.svgHandler.children[cell.value.elementId].style.fillOpacity = (
                 (options.fillOpacityRange.max - options.fillOpacityRange.min) *
-                    cell.value.terrainSpecificHeight +
+                    cell.value.environment.terrain.height +
                 options.fillOpacityRange.min
             ).toString();
         });
