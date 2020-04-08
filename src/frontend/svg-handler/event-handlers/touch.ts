@@ -1,5 +1,5 @@
-import { SVGHandler } from '@flowervolution/svg-handler';
-import { TouchEventHandlerType } from '@flowervolution/svg-handler/event-handlers/types';
+import { SVGHandler } from '@flowervolution/frontend/svg-handler';
+import { TouchEventHandlerType } from '@flowervolution/frontend/svg-handler/event-handlers/types';
 
 export const addTouchEventHandlers = (svgHandler: SVGHandler): void => {
     svgHandler.element.parentElement.addEventListener('touchstart', touchStartHandler(svgHandler));

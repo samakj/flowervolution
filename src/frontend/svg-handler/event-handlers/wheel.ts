@@ -1,5 +1,5 @@
-import { SVGHandler } from '@flowervolution/svg-handler';
-import { WheelEventHandlerType } from '@flowervolution/svg-handler/event-handlers/types';
+import { SVGHandler } from '@flowervolution/frontend/svg-handler';
+import { WheelEventHandlerType } from '@flowervolution/frontend/svg-handler/event-handlers/types';
 
 export const addWheelEventHandlers = (svgHandler: SVGHandler): void => {
     svgHandler.element.parentElement.addEventListener('wheel', wheelHandler(svgHandler));

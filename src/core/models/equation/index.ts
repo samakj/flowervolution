@@ -1,4 +1,4 @@
-import { Term } from '@flowervolution/core/equation/term';
+import { Term } from '@flowervolution/core/models/equation/term';
 
 /**
  * A class representing an equation built from terms.

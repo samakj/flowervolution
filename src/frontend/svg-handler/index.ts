@@ -1,4 +1,4 @@
-import { BadElementError, IdGenerationError } from '@flowervolution/svg-handler/errors';
+import { BadElementError, IdGenerationError } from '@flowervolution/frontend/svg-handler/errors';
 import {
     DimensionsType,
     NumberLimitsType,
@@ -10,16 +10,16 @@ import {
     MouseEventHistoryType,
     SVGChildElementType,
     TouchEventHistoryType,
-} from '@flowervolution/svg-handler/types';
-import { addMouseEventHandlers } from '@flowervolution/svg-handler/event-handlers/mouse';
-import { addTouchEventHandlers } from '@flowervolution/svg-handler/event-handlers/touch';
-import { addWheelEventHandlers } from '@flowervolution/svg-handler/event-handlers/wheel';
-import { addResizeHandler } from '@flowervolution/svg-handler/event-handlers/resize';
+} from '@flowervolution/frontend/svg-handler/types';
+import { addMouseEventHandlers } from '@flowervolution/frontend/svg-handler/event-handlers/mouse';
+import { addTouchEventHandlers } from '@flowervolution/frontend/svg-handler/event-handlers/touch';
+import { addWheelEventHandlers } from '@flowervolution/frontend/svg-handler/event-handlers/wheel';
+import { addResizeHandler } from '@flowervolution/frontend/svg-handler/event-handlers/resize';
 import { randomHex } from '@flowervolution/utils/random';
-import { createPathElement } from '@flowervolution/svg-handler/element-creation/path';
-import { createCircleElement } from '@flowervolution/svg-handler/element-creation/circle';
-import { createRectElement } from '@flowervolution/svg-handler/element-creation/rect';
-import { createPolygonElement } from '@flowervolution/svg-handler/element-creation/polygon';
+import { createPathElement } from '@flowervolution/frontend/svg-handler/element-creation/path';
+import { createCircleElement } from '@flowervolution/frontend/svg-handler/element-creation/circle';
+import { createRectElement } from '@flowervolution/frontend/svg-handler/element-creation/rect';
+import { createPolygonElement } from '@flowervolution/frontend/svg-handler/element-creation/polygon';
 
 export class SVGHandler {
     element: SVGElement;

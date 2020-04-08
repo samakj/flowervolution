@@ -1,16 +1,15 @@
-import { SVGHandler } from '@flowervolution/svg-handler';
-import { SeededRandomNumberGenerator } from '@flowervolution/core/seeded-random-number-generator';
-import { Grid2d } from '@flowervolution/core/grid-2d';
-import { GameTile } from '@flowervolution/core/engine/tile';
+import { SVGHandler } from '@flowervolution/frontend/svg-handler';
+import { SeededRandomNumberGenerator } from '@flowervolution/core/generators/seeded-random-number-generator';
+import { Grid2d } from '@flowervolution/core/data-structures/grid-2d';
+import { GameTile } from '@flowervolution/core/models/game-tile';
 import { GameOptionsType, TerrainType } from '@flowervolution/core/engine/types';
 import { deepObjectCombine } from '@flowervolution/utils/deep-combine';
-import { DEFAULT_OPTIONS } from '@flowervolution/core/engine/default-options';
-import { generate2dTerrainEquation } from '@flowervolution/core/terrain/height-generation/terrain-equation-generation';
-import { appendHeight2dGrid } from '@flowervolution/core/terrain/height-generation';
-import { Cell } from '@flowervolution/core/grid-2d/cell';
+import { DEFAULT_OPTIONS } from '@flowervolution/core/config/default-options';
+import { generate2dHeightMapEquation, applyHeightMapEquationToGrid2d } from '@flowervolution/core/generators/environment-generators/height-map';
+import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 import { sleep } from '@flowervolution/utils/sleep';
 import { PositionType } from '@flowervolution/types';
-import { Equation } from '@flowervolution/core/equation';
+import { Equation } from '@flowervolution/core/models/equation';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -91,7 +90,7 @@ export class GameEngine {
                 this.options.terrain.spread = this.options.grid.size * 4;
             }
 
-            const terrainEquation: Equation = generate2dTerrainEquation(
+            const terrainEquation: Equation = generate2dHeightMapEquation(
                 this.seededRandomNumberGenerator,
                 this.options.terrain.equationTerms,
                 this.options.terrain.spread,
@@ -104,7 +103,7 @@ export class GameEngine {
                 };
             }
 
-            appendHeight2dGrid(terrainEquation, this.grid, this.options.terrain.offset);
+            applyHeightMapEquationToGrid2d(terrainEquation, this.grid, this.options.terrain.offset);
             resolve();
         });
     }

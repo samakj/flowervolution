@@ -1,8 +1,8 @@
-import { Cell } from '@flowervolution/core/grid-2d/cell';
+import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 import { DimensionsType, PositionType } from '@flowervolution/types';
-import { Row } from '@flowervolution/core/grid-2d/row';
-import { Column } from '@flowervolution/core/grid-2d/column';
-import { CellValueGeneratorType } from '@flowervolution/core/grid-2d/types';
+import { Row } from '@flowervolution/core/data-structures/grid-2d/row';
+import { Column } from '@flowervolution/core/data-structures/grid-2d/column';
+import { CellValueGeneratorType } from '@flowervolution/core/data-structures/grid-2d/types';
 
 /**
  * A class that represents an 2 dimensional grid of dimensions specified on initialisation.

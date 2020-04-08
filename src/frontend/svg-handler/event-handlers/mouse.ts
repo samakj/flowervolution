@@ -1,5 +1,5 @@
-import { SVGHandler } from '@flowervolution/svg-handler';
-import { MouseEventHandlerType } from '@flowervolution/svg-handler/event-handlers/types';
+import { SVGHandler } from '@flowervolution/frontend/svg-handler';
+import { MouseEventHandlerType } from '@flowervolution/frontend/svg-handler/event-handlers/types';
 
 export const addMouseEventHandlers = (svgHandler: SVGHandler): void => {
     svgHandler.element.parentElement.addEventListener('mouseenter', mouseEnterHandler(svgHandler));

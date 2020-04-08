@@ -1,4 +1,4 @@
-import { Cell } from '@flowervolution/core/grid-2d/cell';
+import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 
 /**
  * A class to represent a column in the 2D Grid.
