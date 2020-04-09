@@ -4,7 +4,7 @@ export const DEFAULT_OPTIONS: GameOptionsType = {
     animation: { time: 400, gap: 100, maxChunkSize: 32, chunkOverlap: 200 },
     debug: true,
     dom: { cellPxSpacing: 0 },
-    grid: { size: 128 },
+    grid: { size: 64 },
     seed: null,
     terrain: {
         equationTerms: 16,
