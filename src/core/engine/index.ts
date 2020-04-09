@@ -10,7 +10,6 @@ import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 import { sleep } from '@flowervolution/utils/sleep';
 import { PositionType } from '@flowervolution/types';
 import { Equation } from '@flowervolution/core/models/equation';
-import { deepGet } from '@flowervolution/utils/deep-get';
 import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
 import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
 import { applyLightMapToGrid2d } from '@flowervolution/core/generators/environment-generators/light-map';
@@ -47,7 +46,7 @@ export class GameEngine {
         ])
             .then(
                 () => Promise.all([
-                    this.draw1dProperty(['environment', 'height']),
+                    this.drawTileProperty(['environment', 'height']),
                     this.inferTerrainTypes(),
                     this.generateLightMap(),
                     this.addCellDebug(),
@@ -55,7 +54,7 @@ export class GameEngine {
             )
             .then(
                 () => Promise.all([
-                    this.drawTerrainMap(),
+                    this.drawTileProperty(['environment', 'terrain', 'type']),
                     this.inferWaterLevels(),
                 ]),
             )
@@ -139,31 +138,10 @@ export class GameEngine {
         });
     }
 
-    draw1dProperty(propertyPath: string[]): Promise<void> {
+    drawTileProperty(propertyPath: string[]): Promise<void> {
         return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
-            this.removeStylingClasses(element);
-            element.style.fillOpacity = deepGet(cell.value, propertyPath).toString();
-            element.classList.add(`-${propertyPath[propertyPath.length - 1]}`);
+            cell.value.drawProperty(propertyPath, this.svgHandler, this.options)
         });
-    }
-
-    drawTerrainMap(): Promise<void> {
-        return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            const options: TerrainType = this.options.terrain.types[cell.value.environment.terrain.type];
-            const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
-            this.removeStylingClasses(element);
-            element.classList.add(`-${cell.value.environment.terrain.type}`);
-            element.style.fillOpacity = (
-                (options.fillOpacityRange.max - options.fillOpacityRange.min) *
-                    cell.value.environment.terrain.height +
-                options.fillOpacityRange.min
-            ).toString();
-        });
-    }
-
-    removeStylingClasses(element: SVGChildElementType): void {
-        element.classList.remove('-water', '-mud', '-rock', '-snow', '-height', '-saturation', '-salinity');
     }
 
     //// GENERATION AND CREATION
