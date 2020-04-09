@@ -24,6 +24,6 @@ export interface GameOptionsType {
         equationTerms?: number;
         spread?: number;
         offset?: PositionType;
-        types?: { [name: string]: TerrainType; empty: TerrainType };
+        types?: { [name: string]: TerrainType; empty: TerrainType, water: TerrainType };
     };
 }

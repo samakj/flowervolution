@@ -14,6 +14,7 @@ import { roundToDp } from '@flowervolution/utils/round';
 import { deepGet } from '@flowervolution/utils/deep-get';
 import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
 import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
+import { applyLightMapToGrid2d } from '@flowervolution/core/generators/environment-generators/light-map';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -43,6 +44,7 @@ export class GameEngine {
                 () => Promise.all([
                     this.draw1dProperty(['environment', 'height']),
                     this.interpretHeightMap(),
+                    this.interpretLightLevels(),
                     this.addCellDebug(),
                 ]),
             )
@@ -250,6 +252,19 @@ export class GameEngine {
                             );
                         }
                     },
+                );
+                resolve();
+            },
+        );
+    }
+
+    interpretLightLevels(): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                applyLightMapToGrid2d(
+                    { x: this.grid.dimensions.x / 2, y: this.grid.dimensions.y / 2, z: 2 },
+                    this.grid,
+                    this.options.terrain.types.water.heightRange.max,
                 );
                 resolve();
             },

@@ -7,7 +7,7 @@ export class GameTile {
             height?: number;
         };
         light?: {
-
+            intensity?: number;
         };
         water?: {
             saturation?: number;

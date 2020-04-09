@@ -3,6 +3,12 @@ export interface PositionType {
     y: number;
 }
 
+export interface Position3dType {
+    x: number;
+    y: number;
+    z: number;
+}
+
 export interface NumberLimitsType {
     min?: number;
     max?: number;
