@@ -58,6 +58,11 @@ export class GameEngine {
                     this.inferWaterLevels(),
                 ]),
             )
+            .then(
+                () => Promise.all([
+                    this.enablePropertyButtons(),
+                ]),
+            )
             .catch(console.error);
     }
 
@@ -215,6 +220,34 @@ export class GameEngine {
         );
     }
 
+    enablePropertyButtons(): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                document.querySelector('.property-button.environment-terrain').addEventListener(
+                    'click',
+                    () => {this.drawTileProperty(['environment', 'terrain', 'type'])},
+                );
+                document.querySelector('.property-button.environment-height').addEventListener(
+                    'click',
+                    () => {this.drawTileProperty(['environment', 'height'])},
+                );
+                document.querySelector('.property-button.environment-light-intensity').addEventListener(
+                    'click',
+                    () => {this.drawTileProperty(['environment', 'light', 'intensity'])},
+                );
+                document.querySelector('.property-button.environment-water-saturation').addEventListener(
+                    'click',
+                    () => {this.drawTileProperty(['environment', 'water', 'saturation'])},
+                );
+                document.querySelector('.property-button.environment-water-salinity').addEventListener(
+                    'click',
+                    () => {this.drawTileProperty(['environment', 'water', 'salinity'])},
+                );
+                resolve();
+            },
+        );
+    }
+
     //// DEBUG
 
     addCellDebug(): Promise<void> {
@@ -226,7 +259,7 @@ export class GameEngine {
                             this.svgHandler.getChild(cell.value.elementId).addEventListener(
                                 'click',
                                 (): void => {
-                                    document.querySelector('.game-controls').innerHTML = `
+                                    document.querySelector('.game-controls .content').innerHTML = `
                                     <pre>${JSON.stringify(cell.value, null, 4)}</pre>
                                     `;
                                 },

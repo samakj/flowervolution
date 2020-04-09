@@ -23,6 +23,26 @@ html {
 
             .game-controls {
                 grid-area: controls;
+
+                .property-buttons {
+                    width: 100%;
+
+                    text-align: center;
+
+                    .property-button {
+                        display: inline-flex;
+                        justify-content: center;
+                        align-items: center;
+
+                        height: 2rem;
+                        width: 2rem;
+                        margin: 0.25rem;
+
+                        background-color: green;
+                        color: white;
+                        font-weight: bold;
+                    }
+                }
             }
 
             .game-container {
@@ -49,16 +69,26 @@ html {
                     fill-opacity: 1;
                     z-index: 1;
 
-                    &.-salinity {
-                        fill: #0f8
-                    }
+                    &.-environment {
+                        &.-height {
+                            fill: white !important;
+                        }
 
-                    &.-saturation {
-                        fill: #00f
-                    }
+                        &.-light {
+                            &.-intensity {
+                                fill: #fb0 !important;
+                            }
+                        }
 
-                    &.-intensity {
-                        fill: #fb0;
+                        &.-water {
+                            &.-salinity {
+                                fill: #0f8 !important;
+                            }
+
+                            &.-saturation {
+                                fill: #00f !important;
+                            }
+                        }
                     }
                 }
             }
