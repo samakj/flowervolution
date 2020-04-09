@@ -13,7 +13,10 @@ export interface TerrainType {
 
 export interface GameOptionsType {
     animation?: { time?: number; gap?: number; maxChunkSize?: number; chunkOverlap?: number };
-    debug?: boolean;
+    debug?: {
+        cellValueDisplay?: boolean;
+        sunRay?: boolean;
+    };
     dom?: { elementId?: string; cellPxSize?: number; cellPxSpacing?: number };
     grid?: { size?: number };
     seed?: number;

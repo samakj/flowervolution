@@ -13,6 +13,7 @@ import { Equation } from '@flowervolution/core/models/equation';
 import { roundToDp } from '@flowervolution/utils/round';
 import { deepGet } from '@flowervolution/utils/deep-get';
 import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
+import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -262,14 +263,69 @@ export class GameEngine {
             (resolve: Function): void => {
                 this.grid.cells.forEach(
                     (cell: Cell<GameTile>): void => {
-                        this.svgHandler.getChild(cell.value.elementId).addEventListener(
-                            'click',
-                            (): void => {
-                                document.querySelector('.game-controls').innerHTML = `
-                                <pre>${JSON.stringify(cell.value, null, 4)}</pre>
-                                `;
-                            },
-                        );
+                        if (this.options.debug.cellValueDisplay) {
+                            this.svgHandler.getChild(cell.value.elementId).addEventListener(
+                                'click',
+                                (): void => {
+                                    document.querySelector('.game-controls').innerHTML = `
+                                    <pre>${JSON.stringify(cell.value, null, 4)}</pre>
+                                    `;
+                                },
+                            );
+                        }
+                        if (this.options.debug.sunRay) {
+                            this.svgHandler.getChild(cell.value.elementId).addEventListener(
+                                'mouseenter',
+                                (): void => {
+                                    this.drawRayPath(cell.position, { x: 32, y: 32 });
+                                },
+                            );
+                            this.svgHandler.getChild(cell.value.elementId).addEventListener(
+                                'mouseleave',
+                                (): void => {
+                                    this.clearRayPath(cell.position, { x: 32, y: 32 });
+                                },
+                            );
+                        }
+                    },
+                );
+                resolve();
+            },
+        );
+    }
+
+    drawRayPath(a: PositionType, b: PositionType): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                bresenhamLine(a, b).forEach(
+                    (position: PositionType, index: number, positionList: PositionType[]): void => {
+                        const cell: Cell<GameTile> = this.grid.getCell(position);
+                        const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
+                        element.style.fill = index === 0 || index === positionList.length - 1 ? 'green' : 'red';
+                        element.style.fillOpacity = '1';
+                        element.style.transition = '0ms';
+                    },
+                );
+                resolve();
+            },
+        );
+    }
+
+    clearRayPath(a: PositionType, b: PositionType): Promise<void> {
+        return new Promise<void>(
+            (resolve: Function): void => {
+                bresenhamLine(a, b).forEach(
+                    (position: PositionType): void => {
+                        const cell: Cell<GameTile> = this.grid.getCell(position);
+                        const element: SVGChildElementType = this.svgHandler.getChild(cell.value.elementId);
+                        const options: TerrainType = this.options.terrain.types[cell.value.environment.terrain.type];
+                        element.style.fill = '';
+                        element.style.transition = '';
+                        element.style.fillOpacity = (
+                            (options.fillOpacityRange.max - options.fillOpacityRange.min) *
+                                cell.value.environment.terrain.height +
+                            options.fillOpacityRange.min
+                        ).toString();
                     },
                 );
                 resolve();

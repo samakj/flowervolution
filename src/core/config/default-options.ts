@@ -2,10 +2,13 @@ import { GameOptionsType } from '@flowervolution/core/engine/types';
 
 export const DEFAULT_OPTIONS: GameOptionsType = {
     animation: { time: 400, gap: 100, maxChunkSize: 32, chunkOverlap: 200 },
-    debug: true,
+    debug: {
+        cellValueDisplay: true,
+        sunRay: true,
+    },
     dom: { cellPxSpacing: 0 },
     grid: { size: 64 },
-    seed: null,
+    seed: 1234,
     terrain: {
         equationTerms: 16,
         types: {
