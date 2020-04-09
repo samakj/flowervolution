@@ -16,6 +16,7 @@ import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types'
 import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
 import { applyLightMapToGrid2d } from '@flowervolution/core/generators/environment-generators/light-map';
 import { applyWaterLevelsToGrid2d } from '@flowervolution/core/generators/environment-generators/water-level';
+import { applyTerrainTypesToGrid2d } from '@flowervolution/core/generators/environment-generators/terrain-type';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -40,17 +41,25 @@ export class GameEngine {
             (): GameTile => new GameTile(),
         );
 
-        Promise.all([this.drawGrid(), this.createTerrainClasses(), this.generateHeightMap()])
+        Promise.all([
+            this.drawGrid(),
+            this.createTerrainClasses(),
+            this.generateHeightMap(),
+        ])
             .then(
                 () => Promise.all([
                     this.draw1dProperty(['environment', 'height']),
-                    this.interpretHeightMap(),
+                    this.interpretTerrainTypes(),
                     this.interpretLightLevels(),
-                    this.interpretWaterLevels(),
                     this.addCellDebug(),
                 ]),
             )
-            .then(() => Promise.all([this.drawTerrainMap()]))
+            .then(
+                () => Promise.all([
+                    this.drawTerrainMap(),
+                    this.interpretWaterLevels(),
+                ]),
+            )
             .catch(console.error);
     }
 
@@ -200,29 +209,9 @@ export class GameEngine {
         });
     }
 
-    interpretHeightMap(): Promise<void> {
+    interpretTerrainTypes(): Promise<void> {
         return new Promise<void>((resolve: Function): void => {
-            this.grid.cells.forEach((cell: Cell<GameTile>): void => {
-                for (const name in this.options.terrain.types) {
-                    const options: TerrainType = this.options.terrain.types[name];
-
-                    if (
-                        cell.value.environment.height >= options.heightRange.min &&
-                        cell.value.environment.height <= options.heightRange.max
-                    ) {
-                        cell.value.environment.terrain.type = name;
-                        cell.value.environment.terrain.height = roundToDp(
-                            (cell.value.environment.height - options.heightRange.min) /
-                            (options.heightRange.max - options.heightRange.min),
-                            3,
-                        );
-                        break;
-                    }
-                }
-                if (!cell.value.environment.terrain.type) {
-                    throw Error(`No terrain found for height: ${cell.value.environment.height}`);
-                }
-            });
+            applyTerrainTypesToGrid2d(this.grid, this.options);
             resolve();
         });
     }
