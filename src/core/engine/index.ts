@@ -15,6 +15,7 @@ import { deepGet } from '@flowervolution/utils/deep-get';
 import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
 import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
 import { applyLightMapToGrid2d } from '@flowervolution/core/generators/environment-generators/light-map';
+import { applyWaterLevelsToGrid2d } from '@flowervolution/core/generators/environment-generators/water-level';
 
 export class GameEngine {
     options: GameOptionsType;
@@ -45,10 +46,11 @@ export class GameEngine {
                     this.draw1dProperty(['environment', 'height']),
                     this.interpretHeightMap(),
                     this.interpretLightLevels(),
+                    this.interpretWaterLevels(),
                     this.addCellDebug(),
                 ]),
             )
-            .then(() => Promise.all([this.drawTerrainMap(), this.interpretTerrain()]))
+            .then(() => Promise.all([this.drawTerrainMap()]))
             .catch(console.error);
     }
 
@@ -225,34 +227,10 @@ export class GameEngine {
         });
     }
 
-    interpretTerrain(): Promise<void> {
+    interpretWaterLevels(): Promise<void> {
         return new Promise<void>(
             (resolve: Function): void => {
-                this.grid.cells.forEach(
-                    (cell: Cell<GameTile>): void => {
-                        if (cell.value.environment.terrain.type === 'water') {
-                            cell.value.environment.water.saturation = 1;
-                            cell.value.environment.water.salinity = 1;
-                        } else if (cell.value.environment.terrain.type === 'mud') {
-                            cell.value.environment.water.saturation = 1 - cell.value.environment.terrain.height;
-                            cell.value.environment.water.salinity = roundToDp(
-                                (1 - cell.value.environment.terrain.height) ** 2,
-                                3,
-                            );
-                        } else if (cell.value.environment.terrain.type === 'rock') {
-                            cell.value.environment.water.saturation = 0;
-                            cell.value.environment.water.salinity = 0;
-                        } else if (cell.value.environment.terrain.type === 'snow') {
-                            cell.value.environment.water.saturation = 1;
-                            cell.value.environment.water.salinity = 0;
-                        } else {
-                            throw Error(
-                                `Terrain type not handled in terrain interpretation: ` +
-                                `${cell.value.environment.terrain.type}`,
-                            );
-                        }
-                    },
-                );
+                applyWaterLevelsToGrid2d(this.grid, this.options);
                 resolve();
             },
         );

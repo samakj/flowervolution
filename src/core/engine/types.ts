@@ -1,4 +1,6 @@
 import { PositionType } from '@flowervolution/types';
+import { GameTile } from '@flowervolution/core/models/game-tile';
+import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 
 export interface RangeType {
     min: number;
@@ -9,6 +11,8 @@ export interface TerrainType {
     fill: string;
     fillOpacityRange: RangeType;
     heightRange: RangeType;
+    getWaterSaturation: (cell: Cell<GameTile>) => number;
+    getWaterSalinity: (cell: Cell<GameTile>) => number;
 }
 
 export interface GameOptionsType {
