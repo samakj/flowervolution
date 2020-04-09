@@ -10,7 +10,6 @@ import { Cell } from '@flowervolution/core/data-structures/grid-2d/cell';
 import { sleep } from '@flowervolution/utils/sleep';
 import { PositionType } from '@flowervolution/types';
 import { Equation } from '@flowervolution/core/models/equation';
-import { roundToDp } from '@flowervolution/utils/round';
 import { deepGet } from '@flowervolution/utils/deep-get';
 import { SVGChildElementType } from '@flowervolution/frontend/svg-handler/types';
 import { bresenhamLine } from '@flowervolution/utils/bresenham-line';
@@ -49,15 +48,15 @@ export class GameEngine {
             .then(
                 () => Promise.all([
                     this.draw1dProperty(['environment', 'height']),
-                    this.interpretTerrainTypes(),
-                    this.interpretLightLevels(),
+                    this.inferTerrainTypes(),
+                    this.generateLightMap(),
                     this.addCellDebug(),
                 ]),
             )
             .then(
                 () => Promise.all([
                     this.drawTerrainMap(),
-                    this.interpretWaterLevels(),
+                    this.inferWaterLevels(),
                 ]),
             )
             .catch(console.error);
@@ -209,14 +208,14 @@ export class GameEngine {
         });
     }
 
-    interpretTerrainTypes(): Promise<void> {
+    inferTerrainTypes(): Promise<void> {
         return new Promise<void>((resolve: Function): void => {
             applyTerrainTypesToGrid2d(this.grid, this.options);
             resolve();
         });
     }
 
-    interpretWaterLevels(): Promise<void> {
+    inferWaterLevels(): Promise<void> {
         return new Promise<void>(
             (resolve: Function): void => {
                 applyWaterLevelsToGrid2d(this.grid, this.options);
@@ -225,7 +224,7 @@ export class GameEngine {
         );
     }
 
-    interpretLightLevels(): Promise<void> {
+    generateLightMap(): Promise<void> {
         return new Promise<void>(
             (resolve: Function): void => {
                 applyLightMapToGrid2d(
