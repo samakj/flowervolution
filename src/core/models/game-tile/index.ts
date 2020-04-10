@@ -40,15 +40,15 @@ export class GameTile {
             propertyPath[1] === 'terrain' &&
             propertyPath[2] === 'type'
         ) {
-            return this.drawTerrainType(svgHandler, gameOptions)
+            return this.drawTerrainType(svgHandler, gameOptions);
         }
         const element: SVGChildElementType = svgHandler.getChild(this.elementId);
         this.removePropertyStyleClasses(element);
 
-        const propertyValue = deepGet(this, propertyPath);
+        const propertyValue: any = deepGet(this, propertyPath);
 
         if (typeof propertyValue !== 'number') {
-            throw Error(`Trying to display property '${propertyPath[propertyPath.length - 1]}' which isn't a number`)
+            throw Error(`Trying to display property '${propertyPath[propertyPath.length - 1]}' which isn't a number`);
         }
 
         this.currentPropertyStyles = propertyPath.map((pathChunk: string): string => `-${pathChunk}`);

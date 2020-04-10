@@ -34,10 +34,8 @@ module.exports = {
     scss: {
         test: /\.(sc|c)ss$/,
         use: [
-            MCEP.loader,
-            {
-                loader: 'css-loader',
-            },
+            { loader: MCEP.loader, options: { url: false } },
+            { loader: 'css-loader', options: { url: false } },
             {
                 loader: 'sass-loader',
             },

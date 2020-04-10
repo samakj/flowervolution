@@ -1,5 +1,8 @@
+@import 'colours';
+
 * {
     box-sizing: border-box;
+    font-family: sans-serif;
 }
 
 html {
@@ -11,7 +14,7 @@ html {
         margin: 0;
         padding: 1rem;
 
-        background-color: #eee;
+        background-color: $dark-green;
 
         .game-grid {
             display: grid;
@@ -38,9 +41,119 @@ html {
                         width: 2rem;
                         margin: 0.25rem;
 
-                        background-color: green;
-                        color: white;
+                        background-color: $light-green;
+                        background-size: 60%;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        color: $white;
                         font-weight: bold;
+                        box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.5);
+                        border-radius: 0.25rem;
+                        cursor: pointer;
+                        transition: 300ms;
+
+                        &:hover {
+                            background-color: $yellow-brown;
+                        }
+
+                        &.-active {
+                            background-color: $brown;
+                        }
+
+                        &.-environment {
+                            &.-terrain.-type {
+                                background-image: url("../svg/leaf.svg");
+                                color: transparentize($white, 1);
+                            }
+
+                            &.-height {
+                                background-image: url("../svg/vertical-ruler.svg");
+                                color: transparentize($white, 1);
+                            }
+
+                            &.-light {
+                                &.-intensity {
+                                    background-image: url("../svg/sun.svg");
+                                    color: transparentize($white, 1);
+                                }
+                            }
+
+                            &.-water {
+                                &.-salinity {
+                                    background-image: url("../svg/leaf.svg");
+                                    color: transparentize($white, 1);
+                                }
+
+                                &.-saturation {
+                                    background-image: url("../svg/droplet.svg");
+                                    color: transparentize($white, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .content {
+                    padding: 0 1rem 1rem 0;
+                    color: $white;
+
+                    .property-group {
+                        padding: 1rem 0 0 1rem;
+
+                        .property-group-title {
+                            text-transform: uppercase;
+
+                            margin-top: 1rem;
+                        }
+
+                        .property {
+                            display: grid;
+                            grid-template-columns: 1fr 4fr;
+                            grid-template-areas: 'title value';
+                            grid-column-gap: 1rem;
+
+                            margin-top: 0.5rem;
+
+                            .property-title {
+                                grid-area: title;
+                                text-align: left;
+                            }
+
+                            .property-value {
+                                grid-area: value;
+                                text-align: right;
+
+                                .bar {
+                                    position: relative;
+                                    height: 1.5rem;
+                                    width: 100%;
+
+                                    background-color: $olive-brown;
+                                    font-size: 1rem;
+                                    text-align: center;
+                                    padding: 0.25rem;
+
+                                    .value {
+                                        position: relative;
+                                        display: inline-block;
+                                        z-index: 1;
+                                    }
+
+                                    &:before {
+                                        content: '';
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        width: var(--bar-width);
+                                        height: 100%;
+
+                                        z-index: 0;
+
+                                        background-color: $yellow-brown;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

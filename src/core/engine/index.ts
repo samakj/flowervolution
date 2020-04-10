@@ -60,7 +60,7 @@ export class GameEngine {
             )
             .then(
                 () => Promise.all([
-                    this.enablePropertyButtons(),
+                    this.addPropertyButtons(),
                 ]),
             )
             .catch(console.error);
@@ -145,7 +145,7 @@ export class GameEngine {
 
     drawTileProperty(propertyPath: string[]): Promise<void> {
         return this.chunkAnimation((cell: Cell<GameTile>): void => {
-            cell.value.drawProperty(propertyPath, this.svgHandler, this.options)
+            cell.value.drawProperty(propertyPath, this.svgHandler, this.options);
         });
     }
 
@@ -220,29 +220,53 @@ export class GameEngine {
         );
     }
 
-    enablePropertyButtons(): Promise<void> {
+    createPropertyButton(propertyPath: string[]): HTMLElement {
+        const element: HTMLElement = document.createElement('div');
+        element.classList.add(
+            'property-button',
+            ...propertyPath.map((propertyPathChunk: string): string => `-${propertyPathChunk}`),
+        );
+        element.innerText = propertyPath[propertyPath.length - 1][0];
+
+        return element;
+    }
+
+    addPropertyButtons(): Promise<void> {
         return new Promise<void>(
             (resolve: Function): void => {
-                document.querySelector('.property-button.environment-terrain').addEventListener(
-                    'click',
-                    () => {this.drawTileProperty(['environment', 'terrain', 'type'])},
+                const buttonPropertyPaths: string[][] = [
+                    ['environment', 'terrain', 'type'],
+                    ['environment', 'height'],
+                    ['environment', 'light', 'intensity'],
+                    ['environment', 'water', 'saturation'],
+                    ['environment', 'water', 'salinity'],
+                ];
+                const containerElement: HTMLElement = document.querySelector(
+                    '.game-grid .game-controls .property-buttons',
                 );
-                document.querySelector('.property-button.environment-height').addEventListener(
-                    'click',
-                    () => {this.drawTileProperty(['environment', 'height'])},
+                const buttonElements: HTMLElement[] = [];
+
+                buttonPropertyPaths.forEach(
+                    (propertyPath: string[]): void => {
+                        const element: HTMLElement = this.createPropertyButton(propertyPath);
+
+                        buttonElements.push(element);
+                        element.addEventListener(
+                            'click',
+                            () => {
+                                this.drawTileProperty(propertyPath);
+                                buttonElements.forEach(
+                                    (buttonElement: HTMLElement): void => {
+                                        buttonElement.classList.replace('-active', '-inactive');
+                                    },
+                                );
+                                element.classList.add('-active');
+                            },
+                        );
+                        containerElement.insertAdjacentElement('beforeend', element);
+                    },
                 );
-                document.querySelector('.property-button.environment-light-intensity').addEventListener(
-                    'click',
-                    () => {this.drawTileProperty(['environment', 'light', 'intensity'])},
-                );
-                document.querySelector('.property-button.environment-water-saturation').addEventListener(
-                    'click',
-                    () => {this.drawTileProperty(['environment', 'water', 'saturation'])},
-                );
-                document.querySelector('.property-button.environment-water-salinity').addEventListener(
-                    'click',
-                    () => {this.drawTileProperty(['environment', 'water', 'salinity'])},
-                );
+
                 resolve();
             },
         );
@@ -259,8 +283,61 @@ export class GameEngine {
                             this.svgHandler.getChild(cell.value.elementId).addEventListener(
                                 'click',
                                 (): void => {
+                                    const height: string = (
+                                        cell.value.environment.height * 1000
+                                    ).toFixed(0);
+                                    const lightIntensity: string = (
+                                        cell.value.environment.light.intensity * 100
+                                    ).toFixed(1);
+                                    const waterSaturation: string = (
+                                        cell.value.environment.water.saturation * 100
+                                    ).toFixed(1);
+                                    const waterSalinity: string = (
+                                        cell.value.environment.water.salinity * 100
+                                    ).toFixed(1);
+
                                     document.querySelector('.game-controls .content').innerHTML = `
-                                    <pre>${JSON.stringify(cell.value, null, 4)}</pre>
+<div class="property-group">
+    <div class="property-group-title">Environment</div>
+    <div class="property">
+        <div class="property-title">Position</div>
+        <div class="property-value">x: ${cell.position.x}, y: ${cell.position.y}</div>
+    </div>
+    <div class="property">
+        <div class="property-title">Height</div>
+        <div class="property-value">${height}m</div>
+    </div>
+    <div class="property-group">
+        <div class="property-group-title">Light</div>
+        <div class="property">
+            <div class="property-title">Intensity</div>
+            <div class="property-value">
+                <div class="bar" style="--bar-width: ${lightIntensity}%">
+                    <div class="value">${lightIntensity}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="property-group">
+        <div class="property-group-title">Water</div>
+        <div class="property">
+            <div class="property-title">Saturation</div>
+            <div class="property-value">
+                <div class="bar" style="--bar-width: ${waterSaturation}%">
+                    <div class="value">${waterSaturation}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="property">
+            <div class="property-title">Salinity</div>
+            <div class="property-value">
+                <div class="bar" style="--bar-width: ${waterSalinity}%">
+                    <div class="value">${waterSalinity}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                                     `;
                                 },
                             );
